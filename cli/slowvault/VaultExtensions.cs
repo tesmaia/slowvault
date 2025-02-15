@@ -82,18 +82,7 @@ public static class VaultExtensions
         cryptoStream.FlushFinalBlock();
 
         var result = memstream.ToArray();
-        Console.WriteLine($"Encrypted. Cypher length: {result.Length}");
         return result;
-    }
-
-    public static string ToBase64(this byte[] data)
-    {
-        return Convert.ToBase64String(data);
-    }
-
-    public static byte[] DecodeBase64(this string text)
-    {
-        return Convert.FromBase64String(text);
     }
 
     public static string Decrypt(byte[] data, string? password)
@@ -106,9 +95,6 @@ public static class VaultExtensions
     {
         if(string.IsNullOrEmpty(password)) 
             return data;
-
-        Console.WriteLine($"Decrypting. Cypher length: {data.Length}");
-
         try
         {
             var salt = new byte[20];

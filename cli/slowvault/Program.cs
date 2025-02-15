@@ -48,13 +48,40 @@ internal class Program
 
     }
 
-
     internal static (Vault, string, string) OpenVault(string fileName, string password)
     {
         if(string.IsNullOrEmpty(fileName))
         {
-            throw new EndUserException("ERROR Not yet implemented");
+            var vaultPaths = Directory.GetFiles(DefaultFilePath, "*.svlt", System.IO.SearchOption.TopDirectoryOnly);
+            for(int i = 0; i < vaultPaths.Length; i++)
+            {
+                var name = Path.GetFileNameWithoutExtension(vaultPaths[i]);
+                Console.WriteLine($"{i+1}) {name}");
+            }
+            while(true)
+            {
+                Console.Write("Choose one of the above vaults to open: ");
+                var response = Console.ReadLine();
+                if(int.TryParse(response, out var responseIdx))
+                {
+                    if(responseIdx >= 1 && responseIdx <= vaultPaths.Length)
+                    {
+                        var path = vaultPaths[responseIdx - 1];
+                        fileName = path;
+                        break;
+                    }
+                    else
+                    {
+                        throw new EndUserException("ERROR Vault does not exist");
+                    }
+                }
+                else
+                {
+                    ClearCurrentConsoleLine();
+                }
+            }
         }
+
         if(string.IsNullOrEmpty(password))
             password = ConsoleReadPassword();
 
@@ -64,30 +91,6 @@ internal class Program
              throw new EndUserException("ERROR Failure to open vault");
         }
         return (vault, fileName, password);
-    }
-
-    public static string HandleAdd(AddOptions options)
-    {
-        (var vault, var filename, var password) = OpenVault(options.FileName, options.Password);
-
-        var entry = vault.Items.FirstOrDefault(x => x.Key == options.Key);
-        if(entry == null)
-        {
-            entry = new VaultEntry();
-            vault.Items.Add(entry);
-        }
-
-        entry.Key = options.Key;
-        entry.Delay = options.Delay;
-        entry.Available = options.AvailableFor;
-        entry.ClearAfter = options.ClearClipboardAfter;
-        entry.LockAfterCopy = !options.NoLockOnCopy;
-        entry.PromptAgain = options.PromptPasswordAgain;
-        entry.Value = options.Value;
-
-        VaultExtensions.Save(vault, filename, password);
-
-        return "Entry added";
     }
 
     internal static string ConsoleReadPassword(bool hidePrompt = false)
@@ -110,7 +113,12 @@ internal class Program
         return password;
     }
 
-
-
+    internal static void ClearCurrentConsoleLine()
+    {
+        int currentLineCursor = Console.CursorTop;
+        Console.SetCursorPosition(0, Console.CursorTop);
+        Console.Write(new string(' ', Console.WindowWidth)); 
+        Console.SetCursorPosition(0, currentLineCursor);
+    }
 
 }

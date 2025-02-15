@@ -2,7 +2,6 @@ using System;
 using System.IO;
 using CommandLine;
 
-
 namespace SlowVault;
 
 [Verb("create", HelpText = "Create a new vault at the given location.")]
@@ -42,7 +41,7 @@ public class CreateOptions
             Password = Program.ConsoleReadPassword();
         }
 
-        var vault = Vault.Create();
+        var vault = new Vault();
         VaultExtensions.Save(vault, fileName, Password);
         return "Vault created";
     }

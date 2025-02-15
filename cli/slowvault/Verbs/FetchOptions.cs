@@ -38,17 +38,17 @@ public class FetchOptions
         while(target > DateTime.UtcNow)
         {
             System.Threading.Thread.Sleep(200);
-            ClearCurrentConsoleLine();
+            Program.ClearCurrentConsoleLine();
             spinnerPos = (++spinnerPos) % spinnerSequence.Length;
             int delayRemaining = (int)Math.Round((target - DateTime.UtcNow).TotalSeconds);
             Console.Write($"Unlocking entry after {delayRemaining}s {spinnerSequence[spinnerPos]}");
         }
 
-        ClearCurrentConsoleLine();
+         Program.ClearCurrentConsoleLine();
 
         var available = DateTime.UtcNow.AddSeconds(entry.Available);
 
-        Console.WriteLine($"You can obtain the value until {available:HH:mm:ss}");
+        Console.WriteLine($"You can obtain the value until {available.ToLocalTime():HH:mm:ss}");
         string response = null;
         System.Threading.Timer timer = null;
         Console.WriteLine($"Use print (p) or copy (c) command. Use exit (q) to quit the session");
@@ -113,6 +113,7 @@ public class FetchOptions
 
     static void ClearClipboard(object arg)
     {
+        if(valueOnClipboard == null) return;
         try
         {
             var clipboard = TextCopy.ClipboardService.GetText();
@@ -134,11 +135,5 @@ public class FetchOptions
     }
 
 
-    public static void ClearCurrentConsoleLine()
-    {
-        int currentLineCursor = Console.CursorTop;
-        Console.SetCursorPosition(0, Console.CursorTop);
-        Console.Write(new string(' ', Console.WindowWidth)); 
-        Console.SetCursorPosition(0, currentLineCursor);
-    }
+
 }
