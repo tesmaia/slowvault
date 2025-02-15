@@ -14,4 +14,4 @@ This project is incomplete.
 3. Set the environment variable SLOWVAULT_PATH to a location of choice
 4. Just use slowvault --help to look up how it works, it's gonna change a bit still.
 
-
+Should have cross-platform support, support for linux uses xsel to access the clipboard which might not clear things correctly.
