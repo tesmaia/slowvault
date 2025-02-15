@@ -14,10 +14,9 @@ Specs:
 
 CLI:
 slowvault create [filepath]: Create a new vault at the given location, optionally protected by a password (this will encrypt the file with that password, recommended, hidden from console)
-slowvault add [key] [options]: Add a new key to the vault, will prompt the value afterwards (hidden from console)
-slowvault unlock [key]: Unlock a key to be copied to the clipboard, will ask for the password
-slowvault copy [key]: Copy an unlocked secret value to the clipboard
-slowvault print [key]: Prints the secret value to the standard output
+slowvault add [key] [options]: Add a new key to the vault, will prompt the value afterwards (hidden from console, you can add the value immediately using the --value option)
+slowvault fetch [key]: Unlock a key to be copied to the clipboard, will ask for the password. Will ask if you want to copy or print once unlocking is complete
+>> Do you wish to Copy, Print or lock the vault again? (C/p/l):
 slowvault delete [key]: Delete a key from the vault, needs to be unlocked
 slowvault view [key]: View the options set for a key, can also be used to check if a key exists
 slowvault list: List all the keys stored in the vault.
@@ -32,3 +31,4 @@ All these options are defined on the "add" function, none of the other functions
 
 --file, -f: Filepath of the vault, may also be defined as environment variable SLOWVAULT_PATH
 Either --file or SLOWVAULT_PATH must be defined for all options other than create (for which the path is an explicit parameter)
+
