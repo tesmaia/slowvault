@@ -1,7 +1,4 @@
-using System.Collections.Generic;
-using System.IO;
-
-namespace SlowVault;
+namespace SlowVault.Lib;
 
 public class Vault
 {
@@ -14,7 +11,6 @@ public class Vault
     public string Magic { get; set; } = MAGIC;
 
     public string FileVersion { get; set; } = FILE_VERSION;
-
 
     public List<VaultEntry> Items { get; set; } = new List<VaultEntry>();
 }

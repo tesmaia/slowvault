@@ -1,6 +1,4 @@
-using System;
-
-namespace SlowVault;
+namespace SlowVault.Lib;
 
 public class VaultEntry
 {
