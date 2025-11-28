@@ -5,12 +5,13 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <RootNamespace>SlowVault.Cli</RootNamespace>
-    <VersionPrefix>0.0.2</VersionPrefix>
+    <VersionPrefix>0.0.3</VersionPrefix>
     <VersionSuffix>dev</VersionSuffix>
     <Authors>Tesmaia</Authors>
     <Product>SlowVault</Product>
     <Description>SlowVault helps you protect keys from yourself</Description>
     <AssemblyName>slowvault</AssemblyName>
+    <DefineConstants>WAYLANDKDE</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="CommandLineParser" Version="2.9.1" />
@@ -19,4 +20,5 @@
   <ItemGroup>
     <ProjectReference Include="..\lib\slowvault-lib.csproj" />
   </ItemGroup>
+  
 </Project>

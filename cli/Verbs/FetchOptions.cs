@@ -1,4 +1,5 @@
 //#define FASTTIME
+//#define WAYLANDKDE
 
 using System;
 using System.Runtime.InteropServices;
@@ -103,16 +104,31 @@ public class FetchOptions : IExecutableOptions
 
         Console.WriteLine($"You can obtain the value until {available.ToLocalTime():HH:mm:ss}");
         string? response = null;
-        System.Threading.Timer? timer = null;
+        System.Threading.Timer? timer = new System.Threading.Timer(
+            PrintAvailabilityExpired,
+            "timer",
+            dueTime: entry.Available * 1000
+#if FASTTIME
+                / 20
+#endif
+            ,
+            Timeout.Infinite
+        );
         Console.WriteLine($"Use print (p) or copy (c) command. Use exit (q) to quit the session");
         while (true)
         {
             Console.Write("> ");
             response = Console.ReadLine()?.ToLower() ?? string.Empty;
 
+            if (response == "exit" || response == "q")
+            {
+                break;
+            }
+
             if (GetUtcNow() > available)
             {
-                Console.WriteLine("Availability expired");
+                Console.WriteLine("Availability expired. Use q to exit.");
+                Console.Write("> ");
                 break;
             }
 
@@ -137,7 +153,7 @@ public class FetchOptions : IExecutableOptions
                     }
                     Console.WriteLine($"The value will be cleared after {entry.ClearAfter}s");
                     timer = new System.Threading.Timer(
-                        ClearClipboard,
+                        ClearClipboardAndExit,
                         "timer",
                         entry.ClearAfter * 1000,
                         Timeout.Infinite
@@ -158,19 +174,29 @@ public class FetchOptions : IExecutableOptions
                 if (entry.LockAfterCopy)
                     locked = true;
             }
-            else if (response == "exit" || response == "q")
-            {
-                break;
-            }
         }
 
         ClearClipboard(null);
         return null;
     }
 
+    static void PrintAvailabilityExpired(object? arg)
+    {
+        Console.WriteLine();
+        Console.WriteLine("Availability expired. Use q to exit.");
+        Console.Write("> ");
+    }
+    
+    static void ClearClipboardAndExit(object? arg)
+    {
+        ClearClipboard(null);
+        Thread.Sleep(500);
+        System.Environment.Exit(0);
+    }
+
     static void ClearClipboard(object? arg)
     {
-        if (valueOnClipboard == null)
+        if (string.IsNullOrWhiteSpace(valueOnClipboard))
             return;
         try
         {
@@ -178,6 +204,9 @@ public class FetchOptions : IExecutableOptions
             if (clipboard != null && valueOnClipboard.Trim() == clipboard.Trim())
             {
                 TextCopy.ClipboardService.SetText("");
+#if WAYLANDKDE
+                KdeClear();
+#endif
                 Console.WriteLine();
                 Console.WriteLine("Clipboard cleared");
                 if ((arg as string) == "timer")
@@ -188,5 +217,13 @@ public class FetchOptions : IExecutableOptions
         {
             Console.WriteLine(ex.Message);
         }
+    }
+
+
+    static void KdeClear()
+    {
+        SlowVault.Lib.TextCopy.BashRunner.Run(
+            "qdbus6 org.kde.klipper /klipper clearClipboardHistory"
+        );
     }
 }
