@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Specialized;
 using System.Diagnostics;
+using System.Globalization;
 using System.Threading.Tasks;
 using CommandLine;
 using SlowVault.Lib;
@@ -82,8 +84,19 @@ public class AddOptions : IExecutableOptions
     )]
     public bool Overwrite { get; set; }
 
+    [Option(
+        't',
+        "time",
+        Required = false,
+        HelpText = "Only allow access during this time block (format H:mm-H:mm as a from-to block, multiple allowed separated with ;)"
+    )]
+    public string? Time { get; set; }
+
     public async Task<string?> Execute(VaultIO vaultIO)
     {
+        Trace.Assert(this.FileName != null);
+        Trace.Assert(this.Password != null);
+
         (var vault, var filename, var password) = await vaultIO.OpenVault(
             this.FileName,
             this.Password
@@ -129,6 +142,7 @@ public class AddOptions : IExecutableOptions
         entry.ClearAfter = this.ClearClipboardAfter;
         entry.LockAfterCopy = !this.NoLockOnCopy;
         entry.PromptAgain = this.PromptPasswordAgain;
+        entry.TimeAvailable = ParseTimeBlocks(this.Time);
 
         if (string.IsNullOrEmpty(this.Value))
         {
@@ -141,5 +155,48 @@ public class AddOptions : IExecutableOptions
         VaultIO.Save(vault, filename, password);
 
         return "Entry added";
+    }
+
+    public Tuple<int, int>[]? ParseTimeBlocks(string? timeBlockString)
+    {
+        if (timeBlockString == null)
+            return null;
+        var entries = timeBlockString.Split(";");
+        List<Tuple<int, int>> result = [];
+        foreach (var entry in entries)
+        {
+            var words = entry.Split("-");
+            if (words.Length == 2)
+            {
+                var leftValid = TimeSpan.TryParseExact(
+                    words[0],
+                    "h\\:mm",
+                    CultureInfo.InvariantCulture,
+                    out var tsLeft
+                );
+                var rightValid = TimeSpan.TryParseExact(
+                    words[1],
+                    "h\\:mm",
+                    CultureInfo.InvariantCulture,
+                    out var tsRight
+                );
+                if (leftValid && rightValid)
+                {
+                    if (tsLeft < tsRight)
+                    {
+                        result.Add(
+                            Tuple.Create((int)tsLeft.TotalMinutes, (int)tsRight.TotalMinutes)
+                        );
+                    }
+                    else
+                    {
+                        result.Add(Tuple.Create((int)tsLeft.TotalMinutes, 1440));
+                        result.Add(Tuple.Create(0, (int)tsRight.TotalMinutes));
+                    }
+                }
+            }
+        }
+
+        return result.ToArray();
     }
 }

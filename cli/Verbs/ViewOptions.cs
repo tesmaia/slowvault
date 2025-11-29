@@ -46,6 +46,15 @@ public class ViewOptions : IExecutableOptions
         Console.WriteLine($"Lock after copy: {entry.LockAfterCopy}");
         Console.WriteLine($"Prompt password again: {entry.PromptAgain}");
 
+        string PrintTime(int minutes)
+        {
+            return $"{(minutes < 0 ? "-" : "")}{TimeSpan.FromMinutes(minutes):h\\:mm}";
+        }
+
+        Console.WriteLine(
+            $"Timelocked to: [{string.Join(";", entry.TimeAvailable?.Select(x => $"{PrintTime(x.Item1)}-{PrintTime(x.Item2)}") ?? [])}]"
+        );
+
         return null;
     }
 }

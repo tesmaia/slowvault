@@ -55,6 +55,7 @@ public class FetchOptions : IExecutableOptions
         return DateTime.UtcNow;
     }
 
+
     public async Task<string?> Execute(VaultIO vaultIO)
     {
         (var vault, var _, var _) = await vaultIO.OpenVault(
@@ -100,6 +101,15 @@ public class FetchOptions : IExecutableOptions
 
         Program.ClearCurrentConsoleLine();
 
+        var isTimeLocked = entry.CheckTimeLock(DateTime.Now); //local now explicitly
+        if (isTimeLocked)
+        {
+            Console.WriteLine(
+                "This entry is time-locked. You did not intend to access this resource at this time"
+            );
+            System.Environment.Exit(0);
+        }
+
         var available = GetUtcNow().AddSeconds(entry.Available);
 
         Console.WriteLine($"You can obtain the value until {available.ToLocalTime():HH:mm:ss}");
@@ -114,7 +124,7 @@ public class FetchOptions : IExecutableOptions
             ,
             Timeout.Infinite
         );
-        Console.WriteLine($"Use print (p) or copy (c) command. Use exit (q) to quit the session");
+        Console.WriteLine($"p) print in console, c) copy to clipboard, q) exit");
         while (true)
         {
             Console.Write("> ");
@@ -127,8 +137,8 @@ public class FetchOptions : IExecutableOptions
 
             if (GetUtcNow() > available)
             {
-                Console.WriteLine("Availability expired. Use q to exit.");
-                Console.Write("> ");
+                Console.WriteLine("Availability expired. ");
+                ClearClipboardAndExit(null);
                 break;
             }
 
@@ -184,9 +194,9 @@ public class FetchOptions : IExecutableOptions
     {
         Console.WriteLine();
         Console.WriteLine("Availability expired. Use q to exit.");
-        Console.Write("> ");
+        ClearClipboardAndExit(null);
     }
-    
+
     static void ClearClipboardAndExit(object? arg)
     {
         ClearClipboard(null);
@@ -218,7 +228,6 @@ public class FetchOptions : IExecutableOptions
             Console.WriteLine(ex.Message);
         }
     }
-
 
     static void KdeClear()
     {

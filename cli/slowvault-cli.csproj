@@ -5,7 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <RootNamespace>SlowVault.Cli</RootNamespace>
-    <VersionPrefix>0.0.3</VersionPrefix>
+    <VersionPrefix>0.0.4</VersionPrefix>
     <VersionSuffix>dev</VersionSuffix>
     <Authors>Tesmaia</Authors>
     <Product>SlowVault</Product>

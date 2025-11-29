@@ -6,7 +6,7 @@ public class Vault
     public const string MAGIC = "SLVLT";
 
     //file version, just in case I change my mind
-    const string FILE_VERSION = "0.0.1";
+    const string FILE_VERSION = "0.0.2";
 
     public string Magic { get; set; } = MAGIC;
 
